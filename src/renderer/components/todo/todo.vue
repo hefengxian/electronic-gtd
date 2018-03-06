@@ -24,7 +24,7 @@
           <i-button :disabled="!hasStuffSelect" type="text" icon="android-checkmark-circle"></i-button>
           <i-button :disabled="!hasStuffSelect" type="text" icon="edit"></i-button>
           <i-button :disabled="!hasStuffSelect"
-                    @click="showDeleteModal"
+                    @click="removeStuff"
                     type="text"
                     icon="trash-a"></i-button>
         </button-group>
@@ -43,46 +43,50 @@
           </div>
         </li>
       </ul>
-      <div class="message"></div>
     </div>
     <div class="detail">
       <div class="meta">
-        <div class="title">你好啊，Hello World 叮叮咚咚</div>
-        <div class="desc">
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dignissimos enim error incidunt iure, maxime sed
-          sequi. A, ab aspernatur dolor dolorum expedita fugiat magnam nihil officia, officiis, placeat quidem sunt.
-        </div>
+        <div class="title">{{currentStuff.title}}</div>
+        <div class="desc">{{currentStuff.desc}}</div>
       </div>
-      <div class="steps" v-if="">
-        <steps :current="15" direction="vertical">
-          <step v-for="i in 10"
-                :key="i"
-                title="已完成">
+      <div class="steps">
+        <steps direction="vertical"
+               v-if="!isStepEmpty">
+          <step v-for="(step, idx) in currentStuff.steps"
+                :key="idx"
+                @mouseenter.native="$set(step, '_showAction', true)"
+                @mouseleave.native="$set(step, '_showAction', false)"
+                :status="step.status"
+                :title="step.title">
             <button-group size="small"
-                          v-if="false"
+                          v-if="step._showAction"
                           style="position: absolute; right: 0">
-              <i-button type="ghost">
-                <Icon type="android-checkmark-circle"></Icon>
-              </i-button>
-              <i-button type="ghost">
+              <i-button type="ghost"
+                        @click="step.status = 'process'">
                 <icon type="play"></icon>
+              </i-button>
+              <i-button type="ghost"
+                        @click="step.status = 'finish'">
+                <icon type="android-checkmark-circle"></icon>
               </i-button>
               <i-button type="ghost">
                 <icon type="compose"></icon>
               </i-button>
-              <i-button type="ghost">
+              <i-button type="ghost"
+                        @click="step.status = 'error'">
                 <icon type="trash-b"></icon>
               </i-button>
             </button-group>
-            <div class="step-desc"></div>
-
+            <div style=""></div>
+            <div class="step-desc">{{step.desc}}</div>
           </step>
         </steps>
       </div>
       <div class="step-form">
-        <i-input v-model="newStep" placeholder="创建新的步骤"></i-input>
+        <i-input v-model="newStep"
+                 @keypress.enter.native="addStep"
+                 placeholder="创建新的步骤"></i-input>
       </div>
-      <div v-if="false" class="message"></div>
     </div>
 
     <!-- 添加待办事项表单 -->
@@ -134,7 +138,8 @@
         },
         newStep: '',
         todoList: [],
-        currentStuff: {}
+        currentStuff: {},
+        deleteModal: false
       }
     },
     created () {
@@ -175,26 +180,46 @@
       formatDate (date) {
         return moment(date).calendar()
       },
-      showDeleteModal () {
-        this.$Modal.warning({
-          title: '删除代办事项',
-          content: `你确定要删除选择的代办事项`
-          /* onOk () {
-            console.log(this)
-            this.$db.remove({_id: this.currentStuff._id}, {}, (err, numRemoved) => {
-              if (err !== null) {
-                this.$Message.error(err)
-              }
-              this.loadStuffList()
-            })
-          } */
+      removeStuff () {
+        this.$db.remove({_id: this.currentStuff._id}, {}, (err, numRemoved) => {
+          if (err !== null) {
+            this.$Message.error(err)
+          }
+          this.currentStuff = {}
+          this.loadStuffList()
         })
+      },
+
+      addStep () {
+        if (this.newStep.trim() !== '') {
+          let query = {_id: this.currentStuff._id}
+          let step = {
+            title: this.newStep,
+            desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Animi blanditiis consectetur, fugiat id illo laboriosam modi neque non quaerat quidem quos soluta veritatis voluptate? Atque minima odio quas tempore vel.',
+            status: 'wait',
+            createdAt: new Date()
+          }
+          let update = {$push: {steps: step}}
+
+          this.$db.update(query, update, {}, (err, numReplaced) => {
+            if (err !== null) {
+              console.log(err)
+              this.$Message.error(err)
+            } else {
+              this.currentStuff.steps.push(step)
+              this.newStep = ''
+              this.loadStuffList()
+            }
+          })
+        }
       }
     },
     components: {}
   }
 </script>
 <style lang="less">
+  @muted-text-color: #666;
+
   .lineEllipsis(@line: 2) {
     display: -webkit-box;
     /* chrome 支持，文本超过 2 行显示 ... */
@@ -204,11 +229,25 @@
     text-overflow: ellipsis;
   }
 
+
   .base-font {
     font-size: 12px;
   }
 
-  @muted-text-color: #666;
+  .message {
+    flex: 1;
+    width: 100%;
+    text-align: center;
+
+    & .icon {
+      font-size: 24px;
+    }
+    & .content {
+      color: fade(@muted-text-color, 50%);
+    }
+  }
+
+
 
   .todo {
     height: 100vh;
@@ -313,6 +352,7 @@
 
       & .steps {
         flex: 1;
+        display: flex;
         padding: 16px 24px;
         overflow: auto;
 
