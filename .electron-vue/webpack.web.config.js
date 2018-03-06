@@ -36,6 +36,14 @@ let webConfig = {
         })
       },
       {
+        test: /\.less$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          'less-loader',
+        ],
+      },
+      {
         test: /\.html$/,
         use: 'vue-html-loader'
       },
@@ -107,7 +115,7 @@ let webConfig = {
       '@': path.join(__dirname, '../src/renderer'),
       'vue$': 'vue/dist/vue.esm.js'
     },
-    extensions: ['.js', '.vue', '.json', '.css']
+    extensions: ['.js', '.vue', '.json', '.css', '.less']
   },
   target: 'web'
 }

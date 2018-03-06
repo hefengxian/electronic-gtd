@@ -3,7 +3,7 @@
     <div class="nav">
       <ul class="nav-top">
         <li>
-          <avatar src="/static/avatar/default.jpeg"/>
+          <avatar src="static/avatar/default.jpeg"/>
         </li>
         <li>
           <router-link to="/todo">
