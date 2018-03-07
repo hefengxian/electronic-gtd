@@ -6,7 +6,10 @@
 
 <script>
   export default {
-    name: 'electronic-gtd-next'
+    name: 'electronic-gtd-next',
+    mounted () {
+      this.$router.push('/todo')
+    }
   }
 </script>
 

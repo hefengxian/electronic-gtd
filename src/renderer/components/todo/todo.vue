@@ -44,7 +44,7 @@
         </li>
       </ul>
     </div>
-    <div class="detail">
+    <div v-if="hasStuffSelect" class="detail">
       <div class="meta">
         <div class="title">{{currentStuff.title}}</div>
         <div class="desc">{{currentStuff.desc}}</div>
@@ -62,26 +62,34 @@
                           v-if="step._showAction"
                           style="position: absolute; right: 0">
               <i-button type="ghost"
-                        @click="step.status = 'process'">
+                        title="开始处理此步骤"
+                        @click="changeStepStatus(idx, 'process')">
                 <icon type="play"></icon>
               </i-button>
               <i-button type="ghost"
-                        @click="step.status = 'finish'">
+                        title="步骤完成"
+                        @click="changeStepStatus(idx, 'finish')">
                 <icon type="android-checkmark-circle"></icon>
               </i-button>
-              <i-button type="ghost">
+              <i-button type="ghost"
+                        title="编写备注">
                 <icon type="compose"></icon>
               </i-button>
               <i-button type="ghost"
-                        @click="step.status = 'error'">
+                        title="删除此步骤"
+                        @click="removeStep(idx)">
                 <icon type="trash-b"></icon>
               </i-button>
             </button-group>
-            <div style=""></div>
-            <div class="step-desc">{{step.desc}}</div>
+            <div class="step-detail">
+              <div class="step-detail-desc">{{step.desc}}</div>
+              <div class="step-detail-extra">{{formatDate(step.createdAt)}}</div>
+            </div>
           </step>
         </steps>
       </div>
+
+      <!-- 添加新步骤表单 -->
       <div class="step-form">
         <i-input v-model="newStep"
                  @keypress.enter.native="addStep"
@@ -195,7 +203,7 @@
           let query = {_id: this.currentStuff._id}
           let step = {
             title: this.newStep,
-            desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Animi blanditiis consectetur, fugiat id illo laboriosam modi neque non quaerat quidem quos soluta veritatis voluptate? Atque minima odio quas tempore vel.',
+            desc: 'wait',
             status: 'wait',
             createdAt: new Date()
           }
@@ -203,7 +211,6 @@
 
           this.$db.update(query, update, {}, (err, numReplaced) => {
             if (err !== null) {
-              console.log(err)
               this.$Message.error(err)
             } else {
               this.currentStuff.steps.push(step)
@@ -212,6 +219,45 @@
             }
           })
         }
+      },
+
+      // 更改步骤的状态
+      changeStepStatus (index, status) {
+        // 更新
+        let steps = this.currentStuff.steps
+        steps[index].status = status
+        if (steps[index].desc !== status) {
+          steps[index].desc = status
+        }
+
+        let query = {_id: this.currentStuff._id}
+        let update = {$set: {steps}}
+        this.$db.update(query, update, {}, (err, numReplaced) => {
+          if (err !== null) {
+            this.$Message.error(err)
+          } else {
+            this.loadStuffList()
+          }
+        })
+      },
+
+      // Remove Step
+      removeStep (index) {
+        this.currentStuff.steps.splice(index, 1)
+        this.updateSteps(this.currentStuff.steps)
+      },
+
+      // 更新 Steps 到 db
+      updateSteps (steps) {
+        let query = {_id: this.currentStuff._id}
+        let update = {$set: {steps}}
+        this.$db.update(query, update, {}, (err, numReplaced) => {
+          if (err !== null) {
+            this.$Message.error(err)
+          } else {
+            this.loadStuffList()
+          }
+        })
       }
     },
     components: {}
@@ -246,8 +292,6 @@
       color: fade(@muted-text-color, 50%);
     }
   }
-
-
 
   .todo {
     height: 100vh;
@@ -355,9 +399,18 @@
         display: flex;
         padding: 16px 24px;
         overflow: auto;
-
-        & .step-desc {
+        & .step-detail {
+          display: flex;
           font-size: 12px;
+          color: @muted-text-color;
+          margin-bottom: 8px;
+          &-desc {
+            flex: 1;
+          }
+          &-extra {
+            width: 100px;
+            text-align: right;
+          }
         }
       }
 

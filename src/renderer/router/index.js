@@ -3,32 +3,33 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
+// 不用异步组件
 export default new Router({
   routes: [
     {
       path: '/',
       name: 'main-layout',
-      component: () => import('../components/main-layout'),
+      component: require('../components/main-layout').default,
       children: [
         {
           path: '/',
-          component: () => import('../components/todo/todo')
+          component: require('../components/todo/todo').default
         },
         {
           path: 'todo',
           name: 'todo',
-          component: () => import('../components/todo/todo')
+          component: require('../components/todo/todo').default
         },
         {
           path: '/landing-page',
           name: 'landing-page',
-          component: () => import('../components/LandingPage')
+          component: require('../components/LandingPage').default
         }
       ]
     },
     {
       path: '*',
-      redirect: '/'
+      redirect: '/todo'
     }
   ]
 })

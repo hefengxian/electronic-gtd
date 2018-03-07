@@ -22,6 +22,7 @@ function createWindow () {
    */
   mainWindow = new BrowserWindow({
     height: 563,
+    icon: path.join(__static, 'logo.png'),
     // frame: false,
     // useContentSize: true,
     width: 1000
