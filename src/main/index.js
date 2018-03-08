@@ -21,14 +21,18 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 563,
-    icon: path.join(__static, 'logo.png'),
     // frame: false,
     // useContentSize: true,
-    width: 1000
+    height: 563,
+    width: 1000,
+    // LINUX 多屏下无效 Electron BUG 参见
+    // https://github.com/electron/electron/issues/3490
+    center: true,
+    icon: path.join(__static, 'logo.png')
   })
 
   mainWindow.loadURL(winURL)
+  mainWindow.center()
 
   mainWindow.on('closed', () => {
     mainWindow = null
