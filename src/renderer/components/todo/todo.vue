@@ -25,9 +25,23 @@
       </div>
       <div class="actions">
         <button-group size="small">
-          <i-button :disabled="!hasStuffSelect" type="text" icon="android-checkmark-circle"></i-button>
-          <i-button :disabled="!hasStuffSelect" type="text" icon="edit"></i-button>
           <i-button :disabled="!hasStuffSelect"
+                    @click="changeStuffStat('running')"
+                    title="将任务状态设置为正在运行"
+                    type="text"
+                    icon="play"></i-button>
+          <i-button :disabled="!hasStuffSelect"
+                    title="将任务状态设置为完成"
+                    @click="changeStuffStat('done')"
+                    type="text"
+                    icon="android-checkmark-circle"></i-button>
+          <i-button :disabled="!hasStuffSelect"
+                    title="编辑当前任务"
+                    @click="editStuffModal = true"
+                    type="text"
+                    icon="edit"></i-button>
+          <i-button :disabled="!hasStuffSelect"
+                    title="删除当前任务"
                     @click="removeStuff"
                     type="text"
                     icon="trash-a"></i-button>
@@ -132,6 +146,36 @@
         </i-button>
       </div>
     </modal>
+
+    <modal v-model="editStuffModal">
+      <div slot="header">
+        <strong>
+          <icon type="edit"></icon>
+          修改待办事项</strong>
+      </div>
+
+      <i-form :label-width="80">
+        <form-item label="事项">
+          <i-input v-model="currentStuff.title" placeholder="简要的说明待办事项"></i-input>
+        </form-item>
+        <form-item label="备注">
+          <i-input v-model="currentStuff.desc"
+                   type="textarea"
+                   placeholder="待办事项额外信息"></i-input>
+        </form-item>
+      </i-form>
+
+      <div slot="footer">
+        <i-button size="small"
+                  @click="editStuffModal = false"
+                  type="text">取消
+        </i-button>
+        <i-button size="small"
+                  @click="updateStuff(currentStuff)"
+                  type="primary">添加
+        </i-button>
+      </div>
+    </modal>
   </div>
 </template>
 <script>
@@ -149,6 +193,7 @@
           status: 'todo',
           steps: []
         },
+        editStuffModal: false,
         conditions: {
           status: 'running'
         },
@@ -212,9 +257,13 @@
         })
         this.createStuffModal = false
       },
+
+      // 格式化日期
       formatDate (date) {
         return moment(date).fromNow()
       },
+
+      // 删除一个待办事项
       removeStuff () {
         this.$db.remove({_id: this.currentStuff._id}, {}, (err, numRemoved) => {
           if (err !== null) {
@@ -225,6 +274,27 @@
         })
       },
 
+      // 改变一个事项的状态
+      changeStuffStat (status) {
+        this.currentStuff.status = status
+        this.updateStuff(this.currentStuff)
+      },
+
+      // 持久化事项的更新
+      updateStuff (stuff) {
+        let query = {}
+        this.$db.update(query, stuff, {}, (err, numRepalced) => {
+          if (err !== null) {
+            // this.$Message.error(err)
+            console.log(err)
+          } else {
+            this.loadStuffList()
+          }
+        })
+        this.editStuffModal = false
+      },
+
+      // 添加一个步骤
       addStep () {
         if (this.newStep.trim() !== '') {
           let query = {_id: this.currentStuff._id}
@@ -292,6 +362,7 @@
 </script>
 <style lang="less">
   @import "~iview/src/styles/index.less";
+
   @muted-text-color: #999;
 
   .lineEllipsis(@line: 2) {
@@ -359,7 +430,7 @@
 
         & .item-done {
           & .title-box .title, & .desc {
-            color: @muted-text-color!important;
+            color: @muted-text-color !important;
             text-decoration: line-through;
           }
         }
