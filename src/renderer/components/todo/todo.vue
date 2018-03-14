@@ -13,10 +13,14 @@
         </i-button>
       </div>
       <div class="filter">
-        <tabs value="todo" size="small">
+        <tabs v-model="conditions.status"
+              @on-click="loadStuffList()"
+              :animated="false"
+              size="small">
+          <tab-pane label="所有" name="all"></tab-pane>
           <tab-pane label="待办" name="todo"></tab-pane>
           <tab-pane label="进行中" name="running"></tab-pane>
-          <tab-pane label="完成" name="finish"></tab-pane>
+          <tab-pane label="完成" name="done"></tab-pane>
         </tabs>
       </div>
       <div class="actions">
@@ -34,7 +38,8 @@
             :class="{'active': currentStuff._id === stuff._id}"
             @click="currentStuff = stuff"
             :key="index">
-          <div class="item">
+          <div class="item"
+               :class="`item-${stuff.status}`">
             <div class="title-box">
               <div class="title">{{stuff.title}}</div>
               <div class="time">{{formatDate(stuff.createdAt)}}</div>
@@ -141,8 +146,11 @@
         createStuffForm: {
           title: '',
           desc: '',
-          status: 0,
+          status: 'todo',
           steps: []
+        },
+        conditions: {
+          status: 'running'
         },
         newStep: '',
         todoList: [],
@@ -151,9 +159,7 @@
       }
     },
     created () {
-      this.$db.find({}, (e, docs) => {
-        this.todoList = docs
-      })
+      this.loadStuffList()
     },
     computed: {
       hasStuffSelect () {
@@ -169,10 +175,31 @@
     mounted () {
     },
     methods: {
-      loadStuffList () {
-        this.$db.find({}, (e, docs) => {
-          this.todoList = docs
-        })
+      // 加载所有的代办事件
+      loadStuffList (find = {}, sort = {}, skip = 0, limit = -1) {
+        let params = {
+          find: {
+            ...this.conditions,
+            ...find
+          },
+          sort: {
+            createdAt: -1,
+            ...sort
+          },
+          skip,
+          limit
+        }
+
+        if (params.find.status && params.find.status === 'all') {
+          delete params.find.status
+        }
+        // console.log(params, this.conditions)
+
+        this.$db.find(params.find)
+          .sort(params.sort)
+          .exec((e, docs) => {
+            this.todoList = docs
+          })
       },
 
       // 创建新的代办事项
@@ -186,7 +213,7 @@
         this.createStuffModal = false
       },
       formatDate (date) {
-        return moment(date).calendar()
+        return moment(date).fromNow()
       },
       removeStuff () {
         this.$db.remove({_id: this.currentStuff._id}, {}, (err, numRemoved) => {
@@ -264,7 +291,8 @@
   }
 </script>
 <style lang="less">
-  @muted-text-color: #666;
+  @import "~iview/src/styles/index.less";
+  @muted-text-color: #999;
 
   .lineEllipsis(@line: 2) {
     display: -webkit-box;
@@ -274,7 +302,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
 
   .base-font {
     font-size: 12px;
@@ -300,7 +327,7 @@
 
     & .list {
       width: 250px;
-      background-color: #f5f5f5;
+      background-color: #f9f9f9;
       padding: 16px;
       height: 100vh;
       display: flex;
@@ -330,6 +357,13 @@
           background-color: #c7c6c6;
         }
 
+        & .item-done {
+          & .title-box .title, & .desc {
+            color: @muted-text-color!important;
+            text-decoration: line-through;
+          }
+        }
+
         & .item {
           padding: 8px 16px;
           display: flex;
@@ -343,19 +377,20 @@
           & .title-box {
             flex: 1;
             display: flex;
+            padding-bottom: 8px;
 
             // 待办标题
             & .title {
               flex: 1;
-              color: #000;
-              font-size: 1.2em;
-              font-weight: normal;
+              color: @link-color;
+              font-size: 14px;
+              font-weight: bold;
               .lineEllipsis(1);
             }
 
             // 创建时间
             & .time {
-              width: 80px;
+              padding-left: 16px;
               color: @muted-text-color;
               text-align: right;
               .lineEllipsis(1);
