@@ -144,7 +144,7 @@
         </i-button>
         <i-button size="small"
                   @click="createStuff"
-                  type="primary">添加
+                  type="primary">确定
         </i-button>
       </div>
     </modal>
@@ -174,7 +174,7 @@
         </i-button>
         <i-button size="small"
                   @click="updateStuff(currentStuff)"
-                  type="primary">添加
+                  type="primary">确定
         </i-button>
       </div>
     </modal>
@@ -189,6 +189,7 @@
           备注</strong>
       </div>
       <mavon-editor
+        style="max-height: 300px;"
         :value="stepRemark"
         :external_link="false"
         :toolbars="mavonToolbars"
@@ -202,7 +203,7 @@
         </i-button>
         <i-button size="small"
                   @click="stepRemarkModal = false"
-                  type="primary">添加
+                  type="primary">确定
         </i-button>
       </div>
     </modal>
@@ -226,7 +227,7 @@
         },
         editStuffModal: false,
         conditions: {
-          status: 'running'
+          status: 'all'
         },
         stepRemarkModal: false,
         stepRemark: '',
@@ -624,5 +625,13 @@
     }
   }
 
+  .markdown-body{
+    & ul {
+      list-style: initial!important;
+    }
+    & ol {
+      list-style: decimal!important;
+    }
+  }
 
 </style>
