@@ -21,6 +21,11 @@ require('electron').app.on('ready', () => {
     .catch(err => {
       console.log('Unable to install `vue-devtools`: \n', err)
     })
+  installExtension.default(installExtension.JQUERY_DEBUGGER)
+    .then(() => {})
+    .catch(err => {
+      console.log('Unable to install `vue-devtools`: \n', err)
+    })
 })
 
 // Require `main` process to boot app

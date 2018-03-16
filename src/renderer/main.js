@@ -4,6 +4,11 @@ import axios from 'axios'
 // import 'iview/dist/styles/iview.css'
 import IView from 'iview'
 
+// https://hinesboy.github.io/mavonEditor/dist/
+import 'mavon-editor/dist/css/index.css'
+import './assets/mavon-override.less'
+import MavonEditor from 'mavon-editor'
+
 import App from './App'
 import router from './router'
 import store from './store'
@@ -16,6 +21,7 @@ Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
 
 Vue.use(IView)
+Vue.use(MavonEditor)
 Vue.use(dataStore)
 
 /* eslint-disable no-new */

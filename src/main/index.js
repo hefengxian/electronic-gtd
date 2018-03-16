@@ -3,6 +3,10 @@
 import {app, BrowserWindow} from 'electron'
 import path from 'path'
 
+// 设置 Proxy
+// app.commandLine.appendSwitch('proxy-bypass-list', '<local>')
+// app.commandLine.appendSwitch('proxy-server', 'socks5://127.0.0.1:1080')
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html

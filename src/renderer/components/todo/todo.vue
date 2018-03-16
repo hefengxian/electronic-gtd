@@ -79,7 +79,7 @@
                 :title="step.title">
             <button-group size="small"
                           v-if="step._showAction"
-                          style="position: absolute; right: 0">
+                          class="step-actions">
               <i-button type="ghost"
                         title="开始处理此步骤"
                         @click="changeStepStatus(idx, 'process')">
@@ -91,6 +91,7 @@
                 <icon type="android-checkmark-circle"></icon>
               </i-button>
               <i-button type="ghost"
+                        @click="showEditStepRemark(idx)"
                         title="编写备注">
                 <icon type="compose"></icon>
               </i-button>
@@ -101,7 +102,8 @@
               </i-button>
             </button-group>
             <div class="step-detail">
-              <div class="step-detail-desc">{{step.desc}}</div>
+              <div class="step-detail-desc markdown-body"
+                   v-html="markdown.render(step.desc)"></div>
               <div class="step-detail-extra">{{formatDate(step.createdAt)}}</div>
             </div>
           </step>
@@ -176,17 +178,46 @@
         </i-button>
       </div>
     </modal>
+
+    <modal v-model="stepRemarkModal"
+           :closable="false"
+           :mask-closable="false"
+           width="75">
+      <div slot="header">
+        <strong>
+          <icon type="plus-round"></icon>
+          备注</strong>
+      </div>
+      <mavon-editor
+        :value="stepRemark"
+        :external_link="false"
+        :toolbars="mavonToolbars"
+        @change="handleSaveStepRemark"
+        @save="handleSaveStepRemark"
+        :ishljs="true"></mavon-editor>
+      <div slot="footer">
+        <i-button size="small"
+                  @click="stepRemarkModal = false"
+                  type="text">取消
+        </i-button>
+        <i-button size="small"
+                  @click="stepRemarkModal = false"
+                  type="primary">添加
+        </i-button>
+      </div>
+    </modal>
   </div>
 </template>
 <script>
   import moment from 'moment'
-
+  import MavonEditor from 'mavon-editor'
   moment.locale('zh-CN')
 
   export default {
     data () {
       return {
         createStuffModal: false,
+        markdown: MavonEditor.markdownIt,
         createStuffForm: {
           title: '',
           desc: '',
@@ -197,10 +228,48 @@
         conditions: {
           status: 'running'
         },
+        stepRemarkModal: false,
+        stepRemark: '',
         newStep: '',
+        currentStepIndex: -1,
         todoList: [],
         currentStuff: {},
-        deleteModal: false
+        deleteModal: false,
+        mavonToolbars: {
+          bold: true, // 粗体
+          // italic: true, // 斜体
+          header: true, // 标题
+          underline: true, // 下划线
+          strikethrough: true, // 中划线
+          mark: true, // 标记
+          // superscript: true, // 上角标
+          // subscript: true, // 下角标
+          quote: true, // 引用
+          ol: true, // 有序列表
+          ul: true, // 无序列表
+          // link: true, // 链接
+          // imagelink: true, // 图片链接
+          // code: true, // code
+          table: true, // 表格
+          fullscreen: true, // 全屏编辑
+          // readmodel: true, // 沉浸式阅读
+          // htmlcode: true, // 展示html源码
+          help: true, // 帮助
+          /* 1.3.5 */
+          // undo: true, // 上一步
+          // redo: true, // 下一步
+          // trash: true, // 清空
+          // save: true, // 保存（触发events中的save事件）
+          /* 1.4.2 */
+          navigation: true, // 导航目录
+          /* 2.1.8 */
+          // alignleft: true, // 左对齐
+          // aligncenter: true, // 居中
+          // alignright: true, // 右对齐
+          /* 2.2.1 */
+          subfield: true // 单双栏模式
+          // preview: true // 预览
+        }
       }
     },
     created () {
@@ -282,7 +351,7 @@
 
       // 持久化事项的更新
       updateStuff (stuff) {
-        let query = {}
+        let query = {_id: this.currentStuff._id}
         this.$db.update(query, stuff, {}, (err, numRepalced) => {
           if (err !== null) {
             // this.$Message.error(err)
@@ -300,7 +369,7 @@
           let query = {_id: this.currentStuff._id}
           let step = {
             title: this.newStep,
-            desc: 'wait',
+            desc: '',
             status: 'wait',
             createdAt: new Date()
           }
@@ -318,16 +387,33 @@
         }
       },
 
+      // 显示步骤的描述编辑
+      showEditStepRemark (index) {
+        this.currentStepIndex = index
+        let step = this.currentStuff.steps[index]
+        // 设置 stepRemark 的值
+        this.stepRemark = step.desc
+        // 显示模态框
+        this.stepRemarkModal = true
+      },
+
+      handleSaveStepRemark (val, renderVal) {
+        if (this.currentStuff.steps) {
+          this.currentStuff.steps[this.currentStepIndex].desc = val
+          this.updateStep()
+        }
+      },
+
       // 更改步骤的状态
       changeStepStatus (index, status) {
         // 更新
-        let steps = this.currentStuff.steps
-        steps[index].status = status
-        if (steps[index].desc !== status) {
-          steps[index].desc = status
-        }
+        this.currentStuff.steps[index].status = status
+        this.updateStep()
+      },
 
+      updateStep () {
         let query = {_id: this.currentStuff._id}
+        let steps = this.currentStuff.steps
         let update = {$set: {steps}}
         this.$db.update(query, update, {}, (err, numReplaced) => {
           if (err !== null) {
@@ -361,8 +447,6 @@
   }
 </script>
 <style lang="less">
-  @import "~iview/src/styles/index.less";
-
   @muted-text-color: #999;
 
   .lineEllipsis(@line: 2) {
@@ -453,7 +537,7 @@
             // 待办标题
             & .title {
               flex: 1;
-              color: @link-color;
+              color: #2D8cF0;
               font-size: 14px;
               font-weight: bold;
               .lineEllipsis(1);
@@ -485,6 +569,8 @@
       flex-direction: column;
       overflow: hidden;
 
+
+
       & .meta {
         padding: 16px;
         border-bottom: 1px #dddee1 solid;
@@ -505,6 +591,13 @@
         display: flex;
         padding: 16px 24px;
         overflow: auto;
+
+        & .step-actions {
+          position: absolute; right: 0;
+          background-color: #fff;
+          z-index: 5;
+        }
+
         & .step-detail {
           display: flex;
           font-size: 12px;
@@ -530,4 +623,6 @@
 
     }
   }
+
+
 </style>
