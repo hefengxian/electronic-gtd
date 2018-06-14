@@ -23,7 +23,7 @@ npm run lint
 ### Screenshot
 
 ![01](../../../doc-image/raw/master/electronic-gtd/electronic-gtd-screenshot-01.png)
-![02](../../../doc-image/raw/master/electronic-gtd/electronic-gtd-screenshot-01.png)
+![02](../../../doc-image/raw/master/electronic-gtd/electronic-gtd-screenshot-02.png)
 
 ---
 
