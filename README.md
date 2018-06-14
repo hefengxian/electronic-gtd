@@ -22,8 +22,8 @@ npm run lint
 
 ### Screenshot
 
-![01](doc-image/electronic-gtd/electronic-gtd-screenshot-01.png)
-![02](doc-image/electronic-gtd/electronic-gtd-screenshot-01.png)
+![01](/hefengxian/doc-image/electronic-gtd/electronic-gtd-screenshot-01.png)
+![02](/hefengxian/doc-image/electronic-gtd/electronic-gtd-screenshot-01.png)
 
 ---
 
