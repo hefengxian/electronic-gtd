@@ -24,6 +24,11 @@ export default new Router({
           path: '/landing-page',
           name: 'landing-page',
           component: require('../components/LandingPage').default
+        },
+        {
+          path: '/file-tool',
+          name: 'file-tool',
+          component: require('../components/file-tool/file-tool').default
         }
       ]
     },

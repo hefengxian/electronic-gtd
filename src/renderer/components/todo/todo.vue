@@ -49,17 +49,19 @@
       </div>
       <ul class="items">
         <li v-for="(stuff, index) in todoList"
-            :class="{'active': currentStuff._id === stuff._id}"
+            class="item"
+            :class="{'active': currentStuff._id === stuff._id, [`item-${stuff.status}`]: true}"
             @click="currentStuff = stuff"
             :key="index">
-          <div class="item"
-               :class="`item-${stuff.status}`">
-            <div class="title-box">
-              <div class="title">{{stuff.title}}</div>
-              <div class="time">{{formatDate(stuff.createdAt)}}</div>
-            </div>
-            <div class="desc">{{stuff.desc}}</div>
+          <div class="title-box">
+            <div class="title">{{stuff.title}}</div>
+            <div class="time">{{formatDate(stuff.createdAt)}}</div>
           </div>
+          <div class="desc">{{stuff.desc}}</div>
+          <!--<div class="item"
+               :class="`item-${stuff.status}`">
+
+          </div>-->
         </li>
       </ul>
     </div>
@@ -68,7 +70,9 @@
         <div class="title">{{currentStuff.title}}</div>
         <div class="desc">{{currentStuff.desc}}</div>
       </div>
-      <div class="steps">
+      <div class="steps"
+           ref="steps"
+           id="steps">
         <steps direction="vertical"
                v-if="!isStepEmpty">
           <step v-for="(step, idx) in currentStuff.steps"
@@ -180,17 +184,18 @@
     </modal>
 
     <modal v-model="stepRemarkModal"
-           :closable="false"
-           :mask-closable="false"
-           width="75">
+           class-name="modal-wrap"
+           width="80"
+           :mask-closable="false">
       <div slot="header">
         <strong>
           <icon type="plus-round"></icon>
           备注</strong>
       </div>
       <mavon-editor
-        style="max-height: 300px;"
+        :font-size="'12px'"
         :value="stepRemark"
+        style="height: 70vh; max-height: 100vh"
         :external_link="false"
         :toolbars="mavonToolbars"
         @change="handleSaveStepRemark"
@@ -212,13 +217,15 @@
 <script>
   import moment from 'moment'
   import MavonEditor from 'mavon-editor'
+
   moment.locale('zh-CN')
 
   export default {
     data () {
+      let markdown = MavonEditor.markdownIt
       return {
         createStuffModal: false,
-        markdown: MavonEditor.markdownIt,
+        markdown,
         createStuffForm: {
           title: '',
           desc: '',
@@ -239,7 +246,7 @@
         mavonToolbars: {
           bold: true, // 粗体
           // italic: true, // 斜体
-          header: true, // 标题
+          // header: true, // 标题
           underline: true, // 下划线
           strikethrough: true, // 中划线
           mark: true, // 标记
@@ -252,7 +259,7 @@
           // imagelink: true, // 图片链接
           // code: true, // code
           table: true, // 表格
-          fullscreen: true, // 全屏编辑
+          // fullscreen: true, // 全屏编辑
           // readmodel: true, // 沉浸式阅读
           // htmlcode: true, // 展示html源码
           help: true, // 帮助
@@ -383,6 +390,10 @@
               this.currentStuff.steps.push(step)
               this.newStep = ''
               this.loadStuffList()
+              this.$nextTick(() => {
+                // 滚动到底部
+                this.$refs.steps.scrollTop = this.$refs.steps.scrollHeight
+              })
             }
           })
         }
@@ -570,8 +581,6 @@
       flex-direction: column;
       overflow: hidden;
 
-
-
       & .meta {
         padding: 16px;
         border-bottom: 1px #dddee1 solid;
@@ -594,7 +603,8 @@
         overflow: auto;
 
         & .step-actions {
-          position: absolute; right: 0;
+          position: absolute;
+          right: 0;
           background-color: #fff;
           z-index: 5;
         }
@@ -625,12 +635,12 @@
     }
   }
 
-  .markdown-body{
+  .markdown-body {
     & ul {
-      list-style: initial!important;
+      list-style: initial !important;
     }
     & ol {
-      list-style: decimal!important;
+      list-style: decimal !important;
     }
   }
 

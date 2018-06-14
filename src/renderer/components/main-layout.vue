@@ -11,6 +11,11 @@
           </router-link>
         </li>
         <li>
+          <router-link to="/file-tool">
+            <Icon type="android-folder"></Icon>
+          </router-link>
+        </li>
+        <li>
           <router-link to="/landing-page">
             <icon type="help-circled"></icon>
           </router-link>
