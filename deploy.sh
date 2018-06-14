@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
 
-cp -fr ./build/Electronic-GTD-linux-x64/ ~/App/electronic-gtd
+rm -R ~/App/gtd-old-backup
+mv ~/App/gtd ~/App/gtd-old-backup
+rm -R ~/App/gtd
+cp -fr ./build/Electronic-GTD-linux-x64/ ~/App/
+mv ~/App/Electronic-GTD-linux-x64 ~/App/gtd
