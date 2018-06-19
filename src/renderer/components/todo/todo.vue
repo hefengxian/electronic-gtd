@@ -123,7 +123,8 @@
     </div>
 
     <!-- 添加待办事项表单 -->
-    <modal v-model="createStuffModal">
+    <modal v-model="createStuffModal"
+           class-name="modal-wrap">
       <div slot="header">
         <strong>
           <icon type="plus-round"></icon>
@@ -153,7 +154,8 @@
       </div>
     </modal>
 
-    <modal v-model="editStuffModal">
+    <modal v-model="editStuffModal"
+           class-name="modal-wrap">
       <div slot="header">
         <strong>
           <icon type="edit"></icon>
