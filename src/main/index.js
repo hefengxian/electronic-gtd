@@ -100,6 +100,7 @@ function createWindow () {
 
   mainWindow.loadURL(winURL)
   mainWindow.center()
+  // mainWindow.webContents.openDevTools()
 
   mainWindow.on('closed', () => {
     mainWindow = null
