@@ -544,7 +544,7 @@
           & .title-box {
             flex: 1;
             display: flex;
-            padding-bottom: 8px;
+            // padding-bottom: 8px;
 
             // 待办标题
             & .title {
