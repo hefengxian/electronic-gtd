@@ -38,7 +38,7 @@
   }
 </style>
 <script>
-  import {shell} from 'electron'
+  import {exec} from 'child_process'
 
   export default {
     data () {
@@ -72,7 +72,8 @@
             }
             path = path.replace(/\//g, '\\')
             break
-          default:
+          case 'linux':
+            let cmd = 'nautilus'
             // 1. `//` 或者 `\\` 开头的表示一个远程地址，使用 smb 协议打开
             // 并且支持 Windows 格式的 `\\`
             // 这个要放在步骤 2 之前，保证先执行
@@ -80,20 +81,20 @@
               path = 'smb:' + path
               path = path.replace(/\\/g, '/')
               path = encodeURI(path)
-              shell.openItem(path)
+              exec(`${cmd} ${path}`, this.execCallback)
               return
             }
 
             // 2. 类似于 /home/hfx/Desktop 的
             if (path.startsWith('/')) {
-              shell.openItem(path)
+              exec(`${cmd} ${path}`, this.execCallback)
               return
             }
 
             // 3. 直接用全协议的，例如：http://, smb://
             let schemaRegex = /^\w+:\/\//
             if (schemaRegex.test(path)) {
-              shell.openItem(encodeURI(path))
+              exec(`${cmd} ${path}`, this.execCallback)
               return
             }
 
@@ -102,12 +103,17 @@
             if (ipRegExp.test(path)) {
               path = 'smb://' + path
               path = path.replace(/\\/g, '/')
-              shell.openItem(encodeURI(path))
+              exec(`${cmd} ${path}`, this.execCallback)
               return
             }
             alert('无法打开地址！')
             break
+          default:
+            break
         }
+      },
+      execCallback (err, stdout, stderr) {
+        console.log(err, stdout, stderr)
       }
     },
     components: {}
