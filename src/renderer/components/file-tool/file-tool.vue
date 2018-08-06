@@ -25,6 +25,7 @@
            :key="key"
            @click.native="openPath(shortcut.path)"
            color="blue">{{shortcut.label}}</tag>
+      <i-button type="dashed" @click="$Message.error('TODO 待完成')">+</i-button>
     </div>
   </div>
 </template>
@@ -54,8 +55,16 @@
             path: '/home/hfx/Desktop/my_project'
           },
           {
-            label: 'KWM2017项目',
+            label: 'KWM2017 项目',
             path: '\\\\192.168.1.7\\乐思重要项目中心\\KWM2017项目\\'
+          },
+          {
+            label: 'KIS 更新包',
+            path: '\\\\192.168.1.7\\乐思重要项目中心\\WM2期项目\\更新包'
+          },
+          {
+            label: '日常评分',
+            path: '\\\\192.168.1.7\\开发部平台\\_奖罚制度\\'
           }
         ]
       }
