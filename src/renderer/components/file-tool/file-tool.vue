@@ -188,6 +188,7 @@
           // 移除最后一个
           this.shortcutsHistory.splice(-1, 1)
         }
+        this.$localStore.setItem(this.$localStore.Keys.DIR_HISTORY, this.shortcutsHistory)
       },
       handleInputClick () {
         this.createModal.show = true
