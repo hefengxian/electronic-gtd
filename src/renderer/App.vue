@@ -13,6 +13,12 @@
   }
 </script>
 
-<style>
-  /* CSS */
+<style lang="less">
+  .slide-enter-active, .slide-leave-active {
+    transition: all .2s ease;
+  }
+  .slide-enter, .slide-leave-to {
+    transform: translate3d(20px, 0, 0);
+    opacity: 0;
+  }
 </style>

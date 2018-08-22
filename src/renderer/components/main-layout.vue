@@ -30,7 +30,9 @@
       </ul>
     </div>
 
-    <router-view class="content"></router-view>
+    <transition name="slide" mode="out-in">
+      <router-view class="content"></router-view>
+    </transition>
   </div>
 </template>
 <script>
