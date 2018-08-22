@@ -12,7 +12,7 @@ export default new Router({
       component: require('../components/main-layout').default,
       children: [
         {
-          path: '/',
+          path: '',
           component: require('../components/todo/todo').default
         },
         {
@@ -21,12 +21,12 @@ export default new Router({
           component: require('../components/todo/todo').default
         },
         {
-          path: '/landing-page',
+          path: 'landing-page',
           name: 'landing-page',
           component: require('../components/LandingPage').default
         },
         {
-          path: '/file-tool',
+          path: 'file-tool',
           name: 'file-tool',
           component: require('../components/file-tool/file-tool').default
         }
