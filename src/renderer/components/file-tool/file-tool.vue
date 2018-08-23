@@ -34,7 +34,7 @@
       <tag v-for="(shortcut, key) in shortcuts"
            type="dot"
            :key="key"
-           @click.native="openPath(shortcut.path)"
+           @click.native="openPath(path = shortcut.path)"
            closable
            @on-close="handleRemoveShortcut(key)"
            color="blue">{{shortcut.label}}</tag>
